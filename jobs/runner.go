@@ -208,6 +208,10 @@ func (r *Runner) Register(name string, job Func) {
 	r.jobs[name] = job
 }
 
+func (r *Runner) Create(ctx context.Context, name string, m goqite.Message) (goqite.ID, error) {
+	return Create(ctx, r.queue, name, m)
+}
+
 // Create a message for the named job in the given queue.
 func Create(ctx context.Context, q *goqite.Queue, name string, m goqite.Message) (goqite.ID, error) {
 	var buf bytes.Buffer
@@ -229,8 +233,11 @@ func CreateTx(ctx context.Context, tx *sql.Tx, q *goqite.Queue, name string, m g
 // logger matches the info level method from the slog.Logger.
 type logger interface {
 	Info(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 type discardLogger struct{}
 
 func (d *discardLogger) Info(msg string, args ...any) {}
+
+func (d *discardLogger) Error(msg string, args ...any) {}
